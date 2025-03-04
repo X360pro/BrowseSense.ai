@@ -1,0 +1,107 @@
+/* Global Styles */
+body {
+  font-family: "Roboto", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 350px; /* Fixed width */
+  height: 500px; /* Fixed height */
+  background-color: #000; /* Set background to black */
+  color: #fff; /* Ensure text is visible on black background */
+  overflow: hidden; /* Prevent body from scrolling */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Title */
+h1 {
+  text-align: center; /* Center the "Tab Timer" text */
+  font-size: 1.8em;
+  color: #fff; /* Ensure text is visible on black background */
+  margin: 1em 0;
+}
+
+/* Sessions Container */
+#sessions-container {
+  flex: 1; /* Allow container to grow and fill available space */
+  overflow-y: auto; /* Enable vertical scrolling */
+  border: 1px solid #005f73;
+  border-radius: 12px;
+  padding: 1em;
+  background-color: #000000;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 1em;
+}
+
+/* Session List */
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.session-item {
+  padding: 0.8em;
+  margin-bottom: 1em;
+  background: linear-gradient(180deg, rgba(0, 128, 128, 0.8), rgba(255, 255, 255, 0.8)); /* Teal to white gradient */
+  color: #000000;
+  border-radius: 8px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.session-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.session-title {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #0f0f0f;
+  margin-bottom: 0.5em;
+  word-wrap: break-word;
+}
+
+.session-detail {
+  font-size: 0.95em;
+  color: #1f201f;
+}
+
+/* Scrollbar Styling */
+#sessions-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+#sessions-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(0, 128, 128, 0.8), rgba(255, 255, 255, 0.8)); /* Teal to white gradient */
+  border-radius: 5px;
+}
+
+#sessions-container::-webkit-scrollbar-track {
+  background-color: #e0e0e0;
+}
+
+/* Redirect Button */
+#redirect-button {
+  margin: 1em;
+  padding: 0.8em 1.5em;
+  font-size: 1em;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(0, 128, 128, 0.8), rgba(255, 255, 255, 0.8)); /* Teal to white gradient */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#redirect-button:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(0, 128, 128, 0.8)); /* Reverse gradient for hover */
+  transform: scale(1.05);
+}
+
+#redirect-button:active {
+  background: linear-gradient(180deg, rgba(0, 128, 128, 0.8), rgba(255, 255, 255, 0.8)); /* Teal to white gradient */
+  transform: scale(0.98);
+}

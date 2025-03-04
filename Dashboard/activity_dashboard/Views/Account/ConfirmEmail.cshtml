@@ -1,0 +1,34 @@
+@model activity_dashboard.Models.ConfirmEmailModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Confirm Email</title>
+    <link rel="stylesheet" href="~/wwwroot/css/Account/account.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="auth-container">
+        <h2>Confirm Your Email</h2>
+        <p>Please enter the verification code sent to your email.</p>
+
+        <form asp-controller="Account" asp-action="ConfirmEmail" method="post">
+            <div class="form-group">
+                <input asp-for="Email" type="hidden" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Code">Verification Code</label>
+                <input asp-for="Code" required />
+                <span asp-validation-for="Code" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn-submit">Verify Email</button>
+        </form>
+
+        <div class="auth-links">
+            <a asp-controller="Account" asp-action="ResendCode">Resend verification code</a>
+        </div>
+    </div>
+</body>
+</html>

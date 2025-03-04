@@ -1,0 +1,59 @@
+@model activity_dashboard.Models.SignupModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="~/css/Account/account.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="auth-container">
+        <h2>Create Account</h2>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="validation-summary">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            </div>
+        }
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <form asp-controller="Account" asp-action="Signup" method="post">
+            <div class="form-group">
+                <label asp-for="Email">Email</label>
+                <input asp-for="Email" type="email" required />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password">Password</label>
+                <input asp-for="Password" type="password" required />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ConfirmPassword">Confirm Password</label>
+                <input asp-for="ConfirmPassword" type="password" required />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn-submit">Sign Up</button>
+
+            <div class="auth-links">
+                Already have an account? <a asp-controller="Account" asp-action="Login">Log in</a>
+            </div>
+        </form>
+    </div>
+
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+</body>
+</html>

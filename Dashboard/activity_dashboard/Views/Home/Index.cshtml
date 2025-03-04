@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Home";
+    var isAuthenticated = User.Identity.IsAuthenticated;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BrowseSense</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="container my-4">
+        <div class="text-center">
+            <h1 class="display-4">Welcome to BrowseSense</h1>
+            <p class="lead">Your intelligent browsing companion</p>
+            <a href="@Url.Action(isAuthenticated ? "Index" : "Login", isAuthenticated ? "TestConnection" : "Account")" class="btn btn-primary mt-3">
+                Start Tracking
+            </a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+/* Set the body background and default text color */
+body {
+    background-color: #000;
+    color: #fff;
+}
+
+/* Headings and labels */
+h2, label {
+    color: #fff;
+}
+
+/* Container to control the chart size (still responsive) */
+.chart-container {
+    width: 80%;
+    margin: 0 auto;
+    height: 500px;
+    position: relative;
+}
+
+/* Let the canvas fill the container */
+#sessionChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Data Table styling for a dark background */
+#dataTable {
+    margin-top: 20px;
+    margin-bottom: 60px; /* Ensure space above the footer */
+    border-collapse: collapse;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #000; /* Black background */
+    color: #fff; /* White text */
+}
+#dataTable thead {
+    background-color: #333; /* Dark gray header */
+}
+#dataTable th,
+#dataTable td {
+    padding: 10px;
+    border: 1px solid #555; /* Darker border */
+    text-align: center;
+    color: #fff;
+}
+#dataTable tr:hover {
+    background-color: #222;
+}
+
+/* Date range form styling */
+#dateRangeForm {
+    margin-bottom: 20px;
+    text-align: center;
+}
+#dateRangeForm label {
+    margin: 0 0.5rem;
+    color: #fff;
+}
+#dateRangeForm input[type="date"] {
+    margin: 0 0.5rem;
+    background-color: #222; /* Dark input background */
+    color: #fff;
+    border: 1px solid #555;
+    padding: 4px;
+}
+#dateRangeForm button {
+    margin: 0 0.5rem;
+    background-color: #006666;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+#dateRangeForm button:hover {
+    background-color: #004040;
+}
+
+/* Center the heading */
+h2 {
+    text-align: center;
+    color: #fff;
+}
+
+#dateRangeForm button.active {
+    background-color: #002626; /* A darker shade than #ff6868 */
+}
+

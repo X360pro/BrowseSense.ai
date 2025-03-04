@@ -1,0 +1,351 @@
+@model IEnumerable<activity_dashboard.Models.Session>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title> Tracker </title>
+    <link rel="stylesheet" href="~/css/index.css" asp-append-version="true" />
+    <!-- Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- (Optional) If you use any custom JS bundle -->
+    <script src="/dist/bundle.js"></script>
+</head>
+
+<body>
+    <h2>Unveiling Activity Trends</h2>
+
+    <form id="dateRangeForm">
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" name="startDate" required />
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate" name="endDate" required />
+        <button type="button" id="filterBtn">Filter</button>
+        <button type="button" id="today">Today</button>
+        <button type="button" id="last7DaysBtn">Last 7 Days</button>
+        <button type="button" id="allTime">All time</button>
+    </form>
+
+    <!-- Chart Container -->
+    <div class="chart-container">
+        <canvas id="sessionChart"></canvas>
+    </div>
+
+    <!-- Data Table (initially hidden) -->
+    <table id="dataTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Topic</th>
+                <th>Date</th>
+                <th>Duration (seconds)</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        // Retrieve data from ViewBag (or Model)
+        var chartData = @Html.Raw(ViewBag.ChartData ?? "[]");
+
+        const today = new Date();
+            const formattedToday = formatLocalDate(today);
+            
+            // For the exclusive end date (tomorrow)
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            const formattedTomorrow = formatLocalDate(tomorrow);
+
+            // Update the input fields so the user sees the applied date range.
+            document.getElementById("startDate").value = formattedToday;
+            document.getElementById("endDate").value = formattedTomorrow;
+        // Filter out invalid data
+        chartData = chartData.filter(item => 
+            item.TotalDuration && !isNaN(item.TotalDuration)
+        );
+        // Convert to numeric
+        chartData.forEach(item => {
+            item.TotalDuration = parseInt(item.TotalDuration, 10);
+        });
+        // Sort descending
+        chartData.sort((a, b) => b.TotalDuration - a.TotalDuration);
+
+        // Extract labels/durations
+        var labels = chartData.map(data => data.Topic);
+        var durations = chartData.map(data => data.TotalDuration);
+
+        // Get canvas context
+        var ctx = document.getElementById('sessionChart').getContext('2d');
+
+        // Create gradient fill
+        @* var gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(54, 162, 235, 0.8)');  
+        gradient.addColorStop(1, 'rgba(255, 99, 132, 0.8)');   *@
+
+        // Global variable to track the active (clicked) bar index
+        var activeBar = -1;
+
+        // Your existing gradient (normal state)
+        // var gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        // gradient.addColorStop(0, 'rgba(54, 162, 235, 0.8)');
+        // gradient.addColorStop(1, 'rgba(255, 99, 132, 0.8)');
+
+        // // Create a darker gradient for the clicked bar
+        // var darkerGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        // darkerGradient.addColorStop(0, 'rgba(5, 35, 75, 0.8)');  // even darker blue
+        // darkerGradient.addColorStop(1, 'rgba(220, 80, 120, 0.8)');  // even darker pink
+        var gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 128, 128, 0.8)'); // teal
+        gradient.addColorStop(0.7, 'rgba(0, 128, 128, 0.4)'); // lighter teal
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0.8)'); // white
+
+        // Create a darker gradient for the clicked bar
+        var darkerGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        darkerGradient.addColorStop(0, 'rgba(0, 100, 100, 0.8)');  // darker teal
+        darkerGradient.addColorStop(0.7, 'rgba(0, 100, 100, 0.4)');  // lighter darker teal
+        darkerGradient.addColorStop(1, 'rgba(200, 200, 200, 0.8)');  // light gray
+
+
+        // Build the chart
+        var sessionChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Duration (seconds)',
+                    data: durations,
+                    backgroundColor: function(context) {
+                            return (context.dataIndex === activeBar) ? darkerGradient : gradient;
+                    },
+                    borderColor: 'rgba(0, 0, 0, 0.3)',
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#fff'
+                        },
+                        grid: {
+                            color: 'rgba(128, 128, 128, 0.2)'  // Grey gridlines
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#fff'
+                        },
+                        grid: {
+                            color: 'rgba(128, 128, 128, 0.2)'  // Grey gridlines
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#fff'
+                        }
+                    }
+                },
+                // On bar click: fetch sessions by topic, respecting date range
+                onClick: (evt) => {
+                    const points = sessionChart.getElementsAtEventForMode(
+                        evt, 
+                        'nearest', 
+                        { intersect: true }, 
+                        true
+                    );
+                    if (points.length) {
+                        @* const topic = sessionChart.data.labels[points[0].index];
+                        fetchSessionsByTopic(topic); *@
+                        activeBar = points[0].index; // Set clicked bar as active
+                        sessionChart.update();       // Redraw the chart with updated colors
+
+                        const topic = sessionChart.data.labels[activeBar];
+                        fetchSessionsByTopic(topic);
+                    }
+                }
+            }
+        });
+        function clearTopicSelection() {
+            const dataTable = document.getElementById("dataTable");
+            if (dataTable) {
+                // Clear out any rows in the table's tbody
+                const tbody = dataTable.querySelector("tbody");
+                if (tbody) {
+                    tbody.innerHTML = "";
+                }
+                // Optionally, hide the table if nothing should be visible
+                dataTable.style.display = "none";
+            }
+        }
+
+
+        // Implementation for Filter button
+        document.getElementById("filterBtn").addEventListener("click", function () {
+        // Get the selected start and end dates
+            clearTopicSelection();
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+
+            if (!startDate || !endDate) {
+                alert("Please select both start and end dates.");
+                return;
+            }
+
+            // Call the GetSessions endpoint with the selected date range
+            fetch(`/TestConnection/GetSessions?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    updateChart(data); // Call your chart update function with the new data
+                })
+                .catch(error => console.error("Error fetching filtered data:", error));
+        });
+        // "Last 7 Days" button
+        document.getElementById("last7DaysBtn").addEventListener("click", function() {
+            clearTopicSelection();
+            const today = new Date();
+            const last7Days = new Date(today);
+            last7Days.setDate(today.getDate() - 7);
+            const formattedToday = today.toISOString().split("T")[0];
+            const formattedLast7Days = last7Days.toISOString().split("T")[0];
+            document.getElementById("startDate").value = formattedLast7Days;
+            document.getElementById("endDate").value = formattedToday;
+
+            fetch(`/TestConnection/GetSessions?startDate=${formattedLast7Days}&endDate=${formattedToday}`)
+                .then(response => response.json())
+                .then(data => updateChart(data))
+                .catch(error => console.error("Error fetching last 7 days data:", error));
+            
+        });
+
+        // Fetch data for all time
+        document.getElementById("allTime").addEventListener("click", function() {
+            clearTopicSelection();
+            document.getElementById("startDate").value = "";
+            document.getElementById("endDate").value = "";
+            fetch(`/TestConnection/GetSessions`)
+                .then(response => response.json())
+                .then(data => updateChart(data))
+                .catch(error => console.error("Error fetching last 7 days data:", error));
+        });
+
+        function formatLocalDate(date) {
+            const year = date.getFullYear();
+            // getMonth returns 0-indexed month, so add 1 and pad with zeros if needed
+            const month = ('0' + (date.getMonth() + 1)).slice(-2);
+            const day = ('0' + date.getDate()).slice(-2);
+            return `${year}-${month}-${day}`;
+        }
+
+        document.getElementById("today").addEventListener("click", function() {
+            clearTopicSelection();
+            const today = new Date();
+            const formattedToday = formatLocalDate(today);
+            
+            // For the exclusive end date (tomorrow)
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            const formattedTomorrow = formatLocalDate(tomorrow);
+
+            // Update the input fields so the user sees the applied date range.
+            document.getElementById("startDate").value = formattedToday;
+            document.getElementById("endDate").value = formattedTomorrow;
+
+            // Fetch sessions using the date range:
+            fetch(`/TestConnection/GetSessions?startDate=${formattedToday}&endDate=${formattedTomorrow}`)
+                .then(response => response.json())
+                .then(data => updateChart(data))
+                .catch(error => console.error("Error fetching today's data:", error));
+        });
+
+
+        
+        function updateChart(data) {
+
+            if (!data || data.length === 0) {
+                console.log("No data available for the selected date range.");
+                sessionChart.data.labels = [];
+                sessionChart.data.datasets[0].data = [];
+                sessionChart.update();
+                return;
+            }
+            data.sort((a, b) => b.totalDuration - a.totalDuration);
+
+            // Extract labels (topics) and durations
+            const labels = data.map(d => d.topic || "[Unknown Topic]"); // Use `Topic` key
+            const durations = data.map(d => d.totalDuration); // Use `TotalDuration` key
+
+            // Update the chart
+            sessionChart.data.labels = labels;
+            sessionChart.data.datasets[0].data = durations;
+            sessionChart.update();
+        }
+
+        document.querySelectorAll('#dateRangeForm button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('#dateRangeForm button').forEach(btn => btn.classList.remove('active'));
+                // Add active class to the clicked button
+                this.classList.add('active');
+                activeBar = -1;      // Reset the active bar index
+                sessionChart.update();
+            });
+        });
+
+
+        /**
+         * Fetch & display sessions by topic *with* the currently selected date range
+         */
+        async function fetchSessionsByTopic(topic) {
+            try {
+                // 1) Get the selected date range from the form
+                const startDate = document.getElementById("startDate").value;
+                const endDate = document.getElementById("endDate").value;
+
+                // 2) Pass the date range in the query string, so the server can apply the filter
+                const response = await fetch(
+                    `/TestConnection/GetSessions?topic=${topic}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`
+                );
+                const sessions = await response.json();
+
+                displaySessions(sessions);
+            } catch (error) {
+                console.error("Error fetching sessions by topic:", error);
+            }
+        }
+
+        // Populate table rows
+        function displaySessions(sessions) {
+            const dataTable = document.getElementById("dataTable");
+            const tbody = dataTable.querySelector("tbody");
+
+            // Clear old rows
+            tbody.innerHTML = "";
+
+            sessions.forEach(session => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${session.title}</td>
+                    <td>${session.topic}</td>
+                    <td>${session.dateUsed}</td>
+                    <td>${Math.floor(session.durationSec)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            dataTable.style.display = "table"; // Show table
+        }
+    </script>
+</body>
+</html>
