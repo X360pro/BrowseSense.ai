@@ -7,7 +7,8 @@ BrowseSense.ai is an intelligent browser activity monitoring system designed to 
 https://github.com/user-attachments/assets/a7e04083-841e-4e1c-a7bf-3951e1ca8347
 
 ## **High Level System Design**  
-[BrowseSense.pdf](https://github.com/user-attachments/files/19076935/BrowseSense.pdf)
+![BrowseSense-1](https://github.com/user-attachments/assets/937d10b7-fa9e-4733-8378-e7a8e1fe677a)
+
 
 ## **Key Features**  
 ✅ **AI-Powered Categorization** – Automatically labels browsing sessions based on content and user behavior.  
